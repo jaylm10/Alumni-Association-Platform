@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "../pages/UserTypeselection.css";
+import { Link } from 'react-router-dom';
 
 const UserTypeselection = () => {
   const [selectedOption, setSelectedOption] = useState('');
@@ -10,6 +11,8 @@ const UserTypeselection = () => {
     setSelectedOption(selectedValue);
     setButtonText(`Join as a ${selectedValue === 'student' ? 'Student' : 'Alumni'}`);
   };
+
+  console.log("Navigating to Register with userType:", selectedOption); // Debugging
 
   return (
     <div className="container">
@@ -34,12 +37,13 @@ const UserTypeselection = () => {
           I’m an Alumni
         </label>
       </div>
-      <div className="signup-btn">
+      
+      <Link className='signup-btn' to="/register" state={{ userType: selectedOption }}>
         <button disabled={!selectedOption}>{buttonText}</button>
-      </div>
-      <div className="login">
+      </Link>
 
-         <p>Already have an account</p>
+      <div className="login">
+        <p>Already have an account <Link to="/login">Login</Link></p>
       </div>
     </div>
   );
