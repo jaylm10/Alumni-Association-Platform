@@ -2,13 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDKGUfsxhJR_hVM3DTix7-dWkYzWfcEw8I",
-  authDomain: "alumni-association-platf-8b782.firebaseapp.com",
-  projectId: "alumni-association-platf-8b782",
-  storageBucket: "alumni-association-platf-8b782.firebasestorage.app",
-  messagingSenderId: "726236115982",
-  appId: "1:726236115982:web:b8fc50b6670d27665c785f"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
 
 const app = initializeApp(firebaseConfig);
 
