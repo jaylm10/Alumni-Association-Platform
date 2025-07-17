@@ -53,7 +53,13 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
+      const user = result.user;
+
+      const res = await axios.post("http://localhost:3000/api/google-auth",{
+        name:user.displayName,
+        email:user.email,
+      })
+      const token = res.data.token;
       localStorage.setItem("token", token);
       toast.success("Logged in with Google");
       setTimeout(() => navigate("/"), 2000);
