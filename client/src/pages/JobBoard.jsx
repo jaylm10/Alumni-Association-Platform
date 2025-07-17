@@ -17,6 +17,7 @@ import {
   ChevronUp
 } from "lucide-react";
 import './JobBoard.css';
+import Header from "../components/Header"
 
 const JobBoard = () => {
   // States for UI
@@ -237,34 +238,7 @@ const JobBoard = () => {
   return (
     <div className="job-board-container">
       {/* Header/Nav */}
-      <header className="jb-header">
-        <div className="jb-nav-container">
-          <div className="jb-logo">
-            <a href="/" className="logo-link">
-              <div className="logo-icon">
-                <span>AC</span>
-              </div>
-              <span className="logo-text">Alumni Connect</span>
-            </a>
-          </div>
-          
-          <nav className="jb-nav">
-            <a href="/" className="jb-nav-link">Home</a>
-            <a href="/jobs" className="jb-nav-link active">Job Board</a>
-            <a href="/events" className="jb-nav-link">Events</a>
-            <a href="/profile" className="jb-nav-link">Profile</a>
-          </nav>
-          
-          <div className="jb-auth-buttons">
-            <a href="/login" className="jb-btn jb-btn-secondary">Login</a>
-            <a href="/register" className="jb-btn jb-btn-primary">Register</a>
-          </div>
-          
-          <button className="jb-mobile-menu-btn">
-            <div className="jb-hamburger"></div>
-          </button>
-        </div>
-      </header>
+       <Header/>
 
       {/* Hero Section */}
       <section className="jb-hero">
