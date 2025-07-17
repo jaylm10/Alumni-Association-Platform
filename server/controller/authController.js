@@ -56,3 +56,20 @@ exports.login = async(req,res)=>{
 }
 
 }
+
+exports.googleauth = async(req,res)=>{
+    try{
+        const {name,email} = req.body;
+        let user = await User.findOne({email});
+
+        if(!user){
+            user = await User.create({name,email});
+        }
+        const token = jwt.sign({id:user._id,email:user.email,username:user.name},process.env.JWT_SECRET,{expiresIn:"1h"});
+        res.status(200).json({token:token,message:"User signed in successfully"});
+
+    }catch(err){
+        console.log("Error while login with google",err);
+        
+    }
+}
