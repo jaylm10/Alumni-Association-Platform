@@ -1,66 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import loginImg from "../images/register.jpg";
-import { FaGoogle } from "react-icons/fa";
-import { FaApple } from "react-icons/fa";
-import { FaFacebook } from "react-icons/fa";
+import { FaGoogle, FaApple, FaFacebook } from "react-icons/fa";
 import "../pages/Login.css";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import {
   auth,
   googleProvider,
-  facebookProvider,
   signInWithPopup,
 } from "../firebase";
+import { AuthContext } from "../contexts/AuthContextProvider";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setRole } = useContext(AuthContext);
 
+  // Email/password login
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
+      const { data } = await axios.post(
         "http://localhost:3000/api/login",
-        {
-          email,
-          password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
       );
-      console.log(response);
 
-      const token = response.data.token;
-      localStorage.setItem("token", token);
+      // Store token & role
+      localStorage.setItem("token", data.token);
+      setRole(data.role);
 
-      console.log("Login successful:", response.data);
       toast.success("Login Successful");
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
       toast.error(error.response?.data?.message || "Login failed");
     }
   };
 
+  // Google login
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      const res = await axios.post("http://localhost:3000/api/google-auth",{
-        name:user.displayName,
-        email:user.email,
-      })
-      const token = res.data.token;
-      localStorage.setItem("token", token);
+      // Send Google account to backend
+      const { data } = await axios.post(
+        "http://localhost:3000/api/google-auth",
+        { name: user.displayName, email: user.email },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      // Store token & role
+      localStorage.setItem("token", data.token);
+      if (data.role) {
+        setRole(data.role);
+      } else {
+        // If role not directly sent, decode it from token
+        const decoded = JSON.parse(atob(data.token.split(".")[1]));
+        setRole(decoded.role);
+      }
+
       toast.success("Logged in with Google");
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {

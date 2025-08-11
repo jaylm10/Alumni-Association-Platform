@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import './JobBoard.css';
 import Header from "../components/Header"
+import Footer from '../components/Footer';
 
 const JobBoard = () => {
   // States for UI
@@ -559,71 +560,7 @@ const JobBoard = () => {
       )}
 
       {/* Footer */}
-      <footer className="jb-footer">
-        <div className="jb-container">
-          <div className="jb-footer-content">
-            <div className="jb-footer-logo">
-              <div className="jb-logo">
-                <div className="logo-icon">
-                  <span>AC</span>
-                </div>
-                <span className="logo-text">Alumni Connect</span>
-              </div>
-              <p>Connecting alumni with opportunities since 2020</p>
-            </div>
-            
-            <div className="jb-footer-links">
-              <div className="jb-footer-column">
-                <h4>Navigate</h4>
-                <ul>
-                  <li><a href="/">Home</a></li>
-                  <li><a href="/jobs">Job Board</a></li>
-                  <li><a href="/events">Events</a></li>
-                  <li><a href="/alumni">Alumni Directory</a></li>
-                </ul>
-              </div>
-              
-              <div className="jb-footer-column">
-                <h4>Resources</h4>
-                <ul>
-                  <li><a href="/career">Career Resources</a></li>
-                  <li><a href="/mentorship">Mentorship</a></li>
-                  <li><a href="/faq">FAQ</a></li>
-                  <li><a href="/support">Support</a></li>
-                </ul>
-              </div>
-              
-              <div className="jb-footer-column">
-                <h4>Contact Us</h4>
-                <ul className="jb-contact-info">
-                  <li>
-                    <Mail size={16} />
-                    <span>contact@alumniconnect.edu</span>
-                  </li>
-                  <li>
-                    <Phone size={16} />
-                    <span>(123) 456-7890</span>
-                  </li>
-                </ul>
-                <div className="jb-social-links">
-                  <a href="#" className="jb-social-link"><Facebook size={18} /></a>
-                  <a href="#" className="jb-social-link"><Twitter size={18} /></a>
-                  <a href="#" className="jb-social-link"><Linkedin size={18} /></a>
-                  <a href="#" className="jb-social-link"><Instagram size={18} /></a>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="jb-footer-bottom">
-            <p>&copy; {new Date().getFullYear()} Alumni Connect. All rights reserved.</p>
-            <div className="jb-legal-links">
-              <a href="/privacy">Privacy Policy</a>
-              <a href="/terms">Terms of Service</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

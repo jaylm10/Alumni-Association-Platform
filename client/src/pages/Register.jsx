@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../pages/Register.css";
 import registerImg from "../images/register.jpg";
@@ -15,14 +15,18 @@ import {
   signInWithPopup,
 } from "../firebase";
 
+
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+  
 
-  //  const userType = location.state?.userType || null;
+   const userType = location.state?.userType || null;
+  //  console.log(typeof userType);
+   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +35,7 @@ const Register = () => {
         name,
         email,
         password,
+        role:userType,
       });
 
       console.log("Registration successful:", response.data);
@@ -51,10 +56,12 @@ const Register = () => {
       const res = await axios.post("http://localhost:3000/api/google-auth",{
         name:user.displayName,
         email:user.email,
+        role:userType,
       })
       const token = res.data.token;
       localStorage.setItem("token", token);
       toast.success("Logged in with Google");
+      setRole(userType);
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       console.error("Google login failed:", error);

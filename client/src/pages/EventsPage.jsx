@@ -22,6 +22,7 @@ import {
   Plus
 } from "lucide-react";
 import './EventsPage.css';
+import Header from '../components/Header';
 
 const EventsPage = () => {
   // States for UI
@@ -473,34 +474,7 @@ const EventsPage = () => {
   return (
     <div className="ep-container">
       {/* Header/Nav */}
-      <header className="ep-header">
-        <div className="ep-nav-container">
-          <div className="ep-logo">
-            <a href="/" className="logo-link">
-              <div className="logo-icon">
-                <span>AC</span>
-              </div>
-              <span className="logo-text">Alumni Connect</span>
-            </a>
-          </div>
-          
-          <nav className="ep-nav">
-            <a href="/" className="ep-nav-link">Home</a>
-            <a href="/jobs" className="ep-nav-link">Job Board</a>
-            <a href="/events" className="ep-nav-link active">Events</a>
-            <a href="/profile" className="ep-nav-link">Profile</a>
-          </nav>
-          
-          <div className="ep-auth-buttons">
-            <a href="/login" className="ep-btn ep-btn-secondary">Login</a>
-            <a href="/register" className="ep-btn ep-btn-primary">Register</a>
-          </div>
-          
-          <button className="ep-mobile-menu-btn">
-            <div className="ep-hamburger"></div>
-          </button>
-        </div>
-      </header>
+      <Header/>
 
       {/* Hero Section */}
       <section className="ep-hero">
