@@ -19,8 +19,21 @@ import {
 import './JobBoard.css';
 import Header from "../components/Header"
 import Footer from '../components/Footer';
+import {AuthContext} from '../contexts/AuthContextProvider';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 const JobBoard = () => {
+
+   const {role} = useContext(AuthContext);
+   const navigate = useNavigate();
+
+
+
+
+
+
   // States for UI
   const [showFilters, setShowFilters] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -40,7 +53,7 @@ const JobBoard = () => {
       id: 1,
       title: "Software Engineer",
       company: "TechCorp",
-      logoUrl: "https://via.placeholder.com/50?text=TC",
+      logoUrl: "https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg",
       location: "San Francisco, CA",
       type: "Full-time",
       salary: "$120,000 - $150,000",
@@ -483,9 +496,11 @@ const JobBoard = () => {
       </main>
       
       {/* Post a Job Button */}
-      <a href="/post-job" className="jb-post-job-btn">
-        <span>Post a Job</span>
-      </a>
+      {(role=='alumni') &&
+      <button className='jb-post-job-btn' onClick={()=> navigate('/post-job')}>
+        Post a Job
+      </button>
+      }
 
       {/* Job Details Modal */}
       {showModal && selectedJob && (
