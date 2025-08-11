@@ -5,8 +5,8 @@ const User = require("../models/user")
 
 exports.register = async(req,res)=>{
     try{
-        const {name,email,password} = req.body;
-        if(!name || !email || !password){
+        const {name,email,password,role} = req.body;
+        if(!name || !email || !password || !role){
             return res.status(400).json({message:"All fields are required"});
         }
         const saltRounts = 10;
@@ -15,7 +15,8 @@ exports.register = async(req,res)=>{
         const newUser = new User({
             name,
             email,
-            password:hashPassword
+            password:hashPassword,
+            role
         })
         await newUser.save();
         res.status(200).json({message:"User registered successfully"});
@@ -38,8 +39,8 @@ exports.login = async(req,res)=>{
             const isMatch = await bcrypt.compare(password,user.password);
 
             if(isMatch){
-                const token = jwt.sign({id:user._id,email:user.email,username:user.name},process.env.JWT_SECRET,{expiresIn:"1h"});
-                res.status(200).json({token:token,message:"User signed in successfully"});
+                const token = jwt.sign({id:user._id,email:user.email,username:user.name,role:user.role},process.env.JWT_SECRET,{expiresIn:"1h"});
+                res.status(200).json({token:token,role:user.role,message:"User signed in successfully"});
             } else{
                 res.status(400).json({message:"Invalid Credentials"});
                 
@@ -59,14 +60,14 @@ exports.login = async(req,res)=>{
 
 exports.googleauth = async(req,res)=>{
     try{
-        const {name,email} = req.body;
+        const {name,email,role} = req.body;
         let user = await User.findOne({email});
 
         if(!user){
-            user = await User.create({name,email});
+            user = await User.create({name,email,role});
         }
-        const token = jwt.sign({id:user._id,email:user.email,username:user.name},process.env.JWT_SECRET,{expiresIn:"1h"});
-        res.status(200).json({token:token,message:"User signed in successfully"});
+        const token = jwt.sign({id:user._id,email:user.email,username:user.name,role:user.role},process.env.JWT_SECRET,{expiresIn:"1h"});
+        res.status(200).json({token:token,role:user.role,message:"User signed in successfully"});
 
     }catch(err){
         console.log("Error while login with google",err);
