@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import JobBoard from "./pages/JobBoard";
 import EventsPage from "./pages/EventsPage";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import PostJob from "./pages/PostJob";
 
 
 function App() {
@@ -14,11 +16,12 @@ function App() {
     
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/userTypeSelection" element={<UserTypeselection />} />
+          <Route path="/userTypeSelection" element={<UserTypeselection/>} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/Jobs" element={<JobBoard />} />
-          <Route path="/Events" element={<EventsPage />} />
+          <Route path="/Jobs" element={<ProtectedRoutes><JobBoard/></ProtectedRoutes>} />
+          <Route path="/Events" element={<ProtectedRoutes><EventsPage/></ProtectedRoutes>} />
+          <Route path="/post-job" element={<ProtectedRoutes><PostJob/></ProtectedRoutes>} />
         </Routes>
 
     </>
