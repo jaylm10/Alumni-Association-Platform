@@ -22,12 +22,40 @@ import Footer from '../components/Footer';
 import {AuthContext} from '../contexts/AuthContextProvider';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import axios from "axios";
 
 
 const JobBoard = () => {
 
    const {role} = useContext(AuthContext);
    const navigate = useNavigate();
+
+   const [jobs, setJobs] = useState([]);
+   const [loading, setLoading] = useState(true);
+
+     useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const token = localStorage.getItem("token"); // get token from login
+        const { data } = await axios.get("http://localhost:3000/api/jobs/", {
+          headers: {
+            Authorization: `Bearer ${token}`, // send token if your route is protected
+          },
+        });
+        setJobs(data.jobs || []); // assuming backend sends array of jobs
+        console.log(data);
+        
+      } catch (error) {
+        console.error("Error fetching jobs:", error.response?.data || error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
 
 
 
@@ -48,158 +76,34 @@ const JobBoard = () => {
   const [datePostedFilter, setDatePostedFilter] = useState('');
   
   // Mock job data
-  const jobs = [
-    {
-      id: 1,
-      title: "Software Engineer",
-      company: "TechCorp",
-      logoUrl: "https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      salary: "$120,000 - $150,000",
-      posted: "3 days ago",
-      description: "TechCorp is seeking an experienced Software Engineer to join our innovative team. The ideal candidate will have expertise in web development, API design, and cloud-based solutions.",
-      responsibilities: [
-        "Design and develop high-quality software solutions",
-        "Write clean, maintainable code and perform code reviews",
-        "Troubleshoot, debug and upgrade existing systems",
-        "Collaborate with cross-functional teams to define and implement new features",
-        "Ensure software performance, quality, and responsiveness"
-      ],
-      requirements: [
-        "Bachelor's degree in Computer Science or related field",
-        "3+ years of experience in software development",
-        "Proficiency in JavaScript, React, and Node.js",
-        "Experience with database systems (SQL, NoSQL)",
-        "Strong problem-solving abilities and attention to detail"
-      ]
-    },
-    {
-      id: 2,
-      title: "Marketing Manager",
-      company: "Global Media",
-      logoUrl: "https://via.placeholder.com/50?text=GM",
-      location: "New York, NY",
-      type: "Full-time",
-      salary: "$90,000 - $110,000",
-      posted: "1 week ago",
-      description: "Global Media is looking for a Marketing Manager to oversee our digital marketing strategies and campaigns. This role will be responsible for developing innovative marketing solutions to increase brand awareness and drive user acquisition.",
-      responsibilities: [
-        "Develop and implement marketing strategies across multiple channels",
-        "Manage social media presence and digital advertising campaigns",
-        "Analyze marketing metrics and adjust strategies accordingly",
-        "Collaborate with design and content teams for campaign materials",
-        "Stay up-to-date with latest marketing trends and best practices"
-      ],
-      requirements: [
-        "Bachelor's degree in Marketing or related field",
-        "5+ years of experience in digital marketing",
-        "Proven track record of successful marketing campaigns",
-        "Experience with SEO, SEM, and social media marketing",
-        "Strong analytical skills and familiarity with marketing tools"
-      ]
-    },
-    {
-      id: 3,
-      title: "Data Analyst",
-      company: "FinTech Solutions",
-      logoUrl: "https://via.placeholder.com/50?text=FS",
-      location: "Chicago, IL",
-      type: "Full-time",
-      salary: "$85,000 - $105,000",
-      posted: "2 weeks ago",
-      description: "FinTech Solutions is hiring a Data Analyst to join our analytics team. The successful candidate will analyze complex datasets and provide actionable insights to drive business decisions.",
-      responsibilities: [
-        "Collect, analyze and interpret large datasets using statistical tools",
-        "Develop dashboards and reports to monitor key business metrics",
-        "Identify trends and patterns in data to support business strategies",
-        "Work with stakeholders to understand data needs and requirements",
-        "Present findings in clear, concise manner to non-technical audiences"
-      ],
-      requirements: [
-        "Bachelor's degree in Statistics, Mathematics, or related field",
-        "2+ years of experience in data analysis",
-        "Proficiency in SQL, Python, and data visualization tools",
-        "Experience with BI tools like Tableau or Power BI",
-        "Strong problem-solving and communication skills"
-      ]
-    },
-    {
-      id: 4,
-      title: "UX/UI Designer",
-      company: "Creative Studio",
-      logoUrl: "https://via.placeholder.com/50?text=CS",
-      location: "Los Angeles, CA",
-      type: "Full-time",
-      salary: "$95,000 - $120,000",
-      posted: "4 days ago",
-      description: "Creative Studio is seeking a talented UX/UI Designer to create exceptional user experiences. The ideal candidate will have a strong portfolio demonstrating expertise in user-centered design processes.",
-      responsibilities: [
-        "Create user flows, wireframes, prototypes, and high-fidelity designs",
-        "Conduct user research and usability testing to inform design decisions",
-        "Collaborate with product managers and developers to implement designs",
-        "Establish design guidelines and ensure consistent user experience",
-        "Keep up with latest design trends and UX best practices"
-      ],
-      requirements: [
-        "Bachelor's degree in Design, HCI, or related field",
-        "3+ years of experience in UX/UI design",
-        "Proficiency in design tools like Figma, Sketch, or Adobe XD",
-        "Strong portfolio demonstrating user-centered design process",
-        "Excellent communication and collaboration skills"
-      ]
-    },
-    {
-      id: 5,
-      title: "Product Manager",
-      company: "TechCorp",
-      logoUrl: "https://via.placeholder.com/50?text=TC",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      salary: "$130,000 - $160,000",
-      posted: "1 day ago",
-      description: "TechCorp is looking for a Product Manager to lead product development initiatives. The ideal candidate will have a technical background and experience in launching successful products.",
-      responsibilities: [
-        "Define product vision, strategy, and roadmap",
-        "Gather and prioritize product requirements",
-        "Work closely with engineering, design, and marketing teams",
-        "Conduct market research and competitive analysis",
-        "Monitor product performance and make data-driven decisions"
-      ],
-      requirements: [
-        "Bachelor's degree in Business, Computer Science, or related field",
-        "5+ years of experience in product management",
-        "Strong technical background with understanding of software development",
-        "Experience with agile methodologies and product lifecycle management",
-        "Excellent leadership and communication skills"
-      ]
-    },
-    {
-      id: 6,
-      title: "HR Specialist",
-      company: "Corporate Services",
-      logoUrl: "https://via.placeholder.com/50?text=CS",
-      location: "Denver, CO",
-      type: "Part-time",
-      salary: "$30 - $40 per hour",
-      posted: "5 days ago",
-      description: "Corporate Services is seeking a part-time HR Specialist to support our human resources department. The successful candidate will handle various HR functions and provide administrative support.",
-      responsibilities: [
-        "Assist with recruitment and onboarding processes",
-        "Maintain employee records and HR documentation",
-        "Support payroll and benefits administration",
-        "Help organize company events and employee engagement activities",
-        "Address basic employee inquiries and concerns"
-      ],
-      requirements: [
-        "Bachelor's degree in Human Resources or related field",
-        "2+ years of experience in HR or administrative role",
-        "Knowledge of HR policies, procedures, and best practices",
-        "Proficiency in Microsoft Office and HRIS systems",
-        "Strong organizational and interpersonal skills"
-      ]
-    }
-  ];
+  // const jobs = [
+  //   {
+  //     id: 1,
+  //     title: "Software Engineer",
+  //     company: "TechCorp",
+  //     logoUrl: "https://static.dezeen.com/uploads/2025/05/sq-google-g-logo-update_dezeen_2364_col_0-852x852.jpg",
+  //     location: "San Francisco, CA",
+  //     type: "Full-time",
+  //     salary: "$120,000 - $150,000",
+  //     posted: "3 days ago",
+  //     description: "TechCorp is seeking an experienced Software Engineer to join our innovative team. The ideal candidate will have expertise in web development, API design, and cloud-based solutions.",
+  //     responsibilities: [
+  //       "Design and develop high-quality software solutions",
+  //       "Write clean, maintainable code and perform code reviews",
+  //       "Troubleshoot, debug and upgrade existing systems",
+  //       "Collaborate with cross-functional teams to define and implement new features",
+  //       "Ensure software performance, quality, and responsiveness"
+  //     ],
+  //     requirements: [
+  //       "Bachelor's degree in Computer Science or related field",
+  //       "3+ years of experience in software development",
+  //       "Proficiency in JavaScript, React, and Node.js",
+  //       "Experience with database systems (SQL, NoSQL)",
+  //       "Strong problem-solving abilities and attention to detail"
+  //     ]
+  //   },
+   
+  // ];
   
   // Filter jobs based on search query and filters
   const filteredJobs = jobs.filter(job => {

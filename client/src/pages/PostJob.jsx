@@ -13,6 +13,8 @@ import {
 import './PostJob.css';
 import Header from "../components/Header";
 import Footer from '../components/Footer';
+import axios from "axios";
+import { toast } from "react-toastify"; // if you're using toast notifications
 
 const PostJob = () => {
   const [formData, setFormData] = useState({
@@ -89,41 +91,53 @@ const PostJob = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (validate()) {
-      setIsSubmitting(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Form submitted:', {
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (validate()) {
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem("token"); 
+
+      const { data } = await axios.post(
+        "http://localhost:3000/api/jobs/post", 
+        {
           ...formData,
-          posted: new Date().toISOString()
-        });
-        
-        setIsSubmitting(false);
-        setSuccessMessage('Job posted successfully!');
-        
-        // Reset form after successful submission
-        setTimeout(() => {
-          setFormData({
-            title: '',
-            company: '',
-            companyLink: '',
-            logoUrl: '',
-            location: '',
-            type: 'Full-time',
-            salary: '',
-            description: '',
-            responsibilities: [''],
-            requirements: ['']
-          });
-          setSuccessMessage('');
-        }, 3000);
-      }, 1500);
+          posted: new Date().toISOString(),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, 
+          },
+        }
+      );
+
+      setSuccessMessage("Job posted successfully!");
+      toast.success("Job posted successfully!");
+
+      // reset form after success
+      setFormData({
+        title: "",
+        company: "",
+        companyLink: "",
+        logoUrl: "",
+        location: "",
+        type: "Full-time",
+        salary: "",
+        description: "",
+        responsibilities: [""],
+        requirements: [""],
+      });
+    } catch (error) {
+      console.error("Error posting job:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to post job");
+    } finally {
+      setIsSubmitting(false);
     }
-  };
+  }
+};
 
   return (
     <div className="post-job-container">
