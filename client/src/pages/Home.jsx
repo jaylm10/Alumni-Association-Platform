@@ -22,7 +22,8 @@ import Footer from '../components/Footer';
 const Home = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const {role} = useContext(AuthContext);
-  console.log(role);
+  // console.log(role);
+  const token = localStorage.getItem("token")
   
 
 
@@ -269,6 +270,7 @@ const Home = () => {
     
 
         {/* CTA Section */}
+        {token == undefined &&
         <section className="cta-section">
           <div className="cta-container">
             <h2>Ready to Connect with Your Alumni Network?</h2>
@@ -279,6 +281,7 @@ const Home = () => {
             </div>
           </div>
         </section>
+        }
       </main>
 
       {/* Footer */}
