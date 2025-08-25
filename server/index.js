@@ -11,10 +11,15 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URL).then(()=>{
+mongoose.connect(process.env.MONGO_URL, {
+    serverSelectionTimeoutMS: 5000, // 5 seconds timeout
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    maxPoolSize: 10 // Maximum number of connections
+}).then(()=>{
     console.log("Connected to MongoDB");
+    // mongoose.set('debug',true)
 }).catch((err)=>{
-    console.log(err);
+    console.error("MongoDB connection error:", err);
 });
 
 app.use("/api",authRoutes);

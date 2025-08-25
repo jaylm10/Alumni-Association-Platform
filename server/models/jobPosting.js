@@ -18,22 +18,24 @@ const jobPostingSchema = new mongoose.Schema({
     required: [true, 'Company website/apply link is required'],
     trim: true,
     validate: {
-      validator: function(v) {
-        return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(v);
-      },
-      message: props => `${props.value} is not a valid URL!`
-    }
+  validator: function(v) {
+    // This regex is more robust and allows for query parameters
+    return /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(v);
+  },
+  message: props => `${props.value} is not a valid URL!`
+}
   },
   logoUrl: {
     type: String,
     trim: true,
     default: 'https://via.placeholder.com/150?text=Company+Logo',
     validate: {
-      validator: function(v) {
-        return /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(v);
-      },
-      message: props => `${props.value} is not a valid URL!`
-    }
+  validator: function(v) {
+    // This regex is more robust and allows for query parameters
+    return /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(v);
+  },
+  message: props => `${props.value} is not a valid URL!`
+}
   },
   location: {
     type: String,

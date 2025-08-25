@@ -6,7 +6,8 @@ const router = express.Router();
 
 router.post('/post',authMiddleware,jobPosting);
 router.get('/',authMiddleware,getJobs);
-router.post('/:id',authMiddleware,getJobById);
+router.get('/:id',authMiddleware,getJobById);
+
 
 
 module.exports = router;

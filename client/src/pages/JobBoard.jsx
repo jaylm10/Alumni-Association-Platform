@@ -1,53 +1,53 @@
-import React, { useState } from 'react';
-import { 
-  Search, 
-  MapPin, 
-  Briefcase, 
-  DollarSign, 
-  Calendar, 
-  Filter, 
+import React, { useState } from "react";
+import {
+  Search,
+  MapPin,
+  Briefcase,
+  DollarSign,
+  Calendar,
+  Filter,
   X,
-  Facebook, 
-  Twitter, 
-  Linkedin, 
+  Facebook,
+  Twitter,
+  Linkedin,
   Instagram,
   Mail,
   Phone,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
 } from "lucide-react";
-import './JobBoard.css';
-import Header from "../components/Header"
-import Footer from '../components/Footer';
-import {AuthContext} from '../contexts/AuthContextProvider';
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import "./JobBoard.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { AuthContext } from "../contexts/AuthContextProvider";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import axios from "axios";
 
-
 const JobBoard = () => {
+  const { role } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-   const {role} = useContext(AuthContext);
-   const navigate = useNavigate();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-   const [jobs, setJobs] = useState([]);
-   const [loading, setLoading] = useState(true);
-
-     useEffect(() => {
+  useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const token = localStorage.getItem("token"); // get token from login
+        const token = localStorage.getItem("token");
         const { data } = await axios.get("http://localhost:3000/api/jobs/", {
           headers: {
-            Authorization: `Bearer ${token}`, // send token if your route is protected
+            Authorization: `Bearer ${token}`,
           },
         });
-        setJobs(data.jobs || []); // assuming backend sends array of jobs
-        console.log(data);
-        
+        setJobs(data.jobs || []);
+        // console.log(data);
       } catch (error) {
-        console.error("Error fetching jobs:", error.response?.data || error.message);
+        console.error(
+          "Error fetching jobs:",
+          error.response?.data || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -56,25 +56,19 @@ const JobBoard = () => {
     fetchJobs();
   }, []);
 
-
-
-
-
-
-
   // States for UI
   const [showFilters, setShowFilters] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  
+
   // Filter states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [jobTypeFilter, setJobTypeFilter] = useState('');
-  const [salaryFilter, setSalaryFilter] = useState('');
-  const [companyFilter, setCompanyFilter] = useState('');
-  const [datePostedFilter, setDatePostedFilter] = useState('');
-  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
+  const [jobTypeFilter, setJobTypeFilter] = useState("");
+  const [salaryFilter, setSalaryFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [datePostedFilter, setDatePostedFilter] = useState("");
+
   // Mock job data
   // const jobs = [
   //   {
@@ -102,78 +96,91 @@ const JobBoard = () => {
   //       "Strong problem-solving abilities and attention to detail"
   //     ]
   //   },
-   
+
   // ];
-  
+
   // Filter jobs based on search query and filters
-  const filteredJobs = jobs.filter(job => {
-    const matchesSearch = searchQuery === '' || 
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch =
+      searchQuery === "" ||
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.location.toLowerCase().includes(searchQuery.toLowerCase());
-      
-    const matchesLocation = locationFilter === '' || job.location.includes(locationFilter);
-    const matchesJobType = jobTypeFilter === '' || job.type === jobTypeFilter;
-    const matchesSalary = salaryFilter === '' || job.salary.includes(salaryFilter);
-    const matchesCompany = companyFilter === '' || job.company === companyFilter;
-    
+
+    const matchesLocation =
+      locationFilter === "" || job.location.includes(locationFilter);
+    const matchesJobType = jobTypeFilter === "" || job.type === jobTypeFilter;
+    const matchesSalary =
+      salaryFilter === "" || job.salary.includes(salaryFilter);
+    const matchesCompany =
+      companyFilter === "" || job.company === companyFilter;
+
     // Simple date posted filter (would be more sophisticated in real app)
-    const matchesDatePosted = datePostedFilter === '' || 
-      (datePostedFilter === 'Last 24 hours' && job.posted.includes('day')) ||
-      (datePostedFilter === 'Last week' && !job.posted.includes('week')) ||
-      (datePostedFilter === 'Last month' && true);
-      
-    return matchesSearch && matchesLocation && matchesJobType && 
-           matchesSalary && matchesCompany && matchesDatePosted;
+    const matchesDatePosted =
+      datePostedFilter === "" ||
+      (datePostedFilter === "Last 24 hours" && job.posted.includes("day")) ||
+      (datePostedFilter === "Last week" && !job.posted.includes("week")) ||
+      (datePostedFilter === "Last month" && true);
+
+    return (
+      matchesSearch &&
+      matchesLocation &&
+      matchesJobType &&
+      matchesSalary &&
+      matchesCompany &&
+      matchesDatePosted
+    );
   });
-  
+
   const handleViewDetails = (job) => {
     setSelectedJob(job);
     setShowModal(true);
   };
-  
+
   const closeModal = () => {
     setShowModal(false);
   };
-  
+
   const resetFilters = () => {
-    setLocationFilter('');
-    setJobTypeFilter('');
-    setSalaryFilter('');
-    setCompanyFilter('');
-    setDatePostedFilter('');
+    setLocationFilter("");
+    setJobTypeFilter("");
+    setSalaryFilter("");
+    setCompanyFilter("");
+    setDatePostedFilter("");
   };
-  
+
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
-  
+
   // Unique values for filters
-  const locations = [...new Set(jobs.map(job => job.location))];
-  const jobTypes = [...new Set(jobs.map(job => job.type))];
-  const companies = [...new Set(jobs.map(job => job.company))];
+  const locations = [...new Set(jobs.map((job) => job.location))];
+  const jobTypes = [...new Set(jobs.map((job) => job.type))];
+  const companies = [...new Set(jobs.map((job) => job.company))];
 
   return (
     <div className="job-board-container">
       {/* Header/Nav */}
-       <Header/>
+      <Header />
 
       {/* Hero Section */}
       <section className="jb-hero">
         <div className="jb-hero-content">
           <h1>Find Your Next Opportunity!</h1>
           <p>Discover exclusive job listings from our alumni network</p>
-          
+
           <div className="jb-search-container">
             <div className="jb-search-box">
               <Search className="jb-search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search jobs, companies, or locations..." 
+              <input
+                type="text"
+                placeholder="Search jobs, companies, or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className="jb-btn jb-btn-primary jb-search-btn">Search</button>
+              <button className="jb-btn jb-btn-primary jb-search-btn">
+                Search
+              </button>
             </div>
           </div>
         </div>
@@ -184,63 +191,68 @@ const JobBoard = () => {
         <div className="jb-container">
           {/* Mobile Filter Toggle */}
           <div className="jb-mobile-filter-toggle">
-            <button 
+            <button
               className="jb-btn jb-btn-secondary jb-filter-toggle-btn"
               onClick={toggleFilters}
             >
               <Filter size={18} />
               <span>Filters</span>
-              {showFilters ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              {showFilters ? (
+                <ChevronUp size={18} />
+              ) : (
+                <ChevronDown size={18} />
+              )}
             </button>
           </div>
 
           <div className="jb-content">
             {/* Filter Sidebar */}
-            <aside className={`jb-sidebar ${showFilters ? 'jb-sidebar-show' : ''}`}>
+            <aside
+              className={`jb-sidebar ${showFilters ? "jb-sidebar-show" : ""}`}
+            >
               <div className="jb-filter-header">
                 <h3>Filters</h3>
-                <button 
-                  className="jb-btn jb-btn-text"
-                  onClick={resetFilters}
-                >
+                <button className="jb-btn jb-btn-text" onClick={resetFilters}>
                   Reset All
                 </button>
               </div>
-              
+
               {/* Location Filter */}
               <div className="jb-filter-group">
                 <h4>Location</h4>
-                <select 
+                <select
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
                   className="jb-select"
                 >
                   <option value="">All Locations</option>
                   {locations.map((location, index) => (
-                    <option key={index} value={location}>{location}</option>
+                    <option key={index} value={location}>
+                      {location}
+                    </option>
                   ))}
                 </select>
               </div>
-              
+
               {/* Job Type Filter */}
               <div className="jb-filter-group">
                 <h4>Job Type</h4>
                 <div className="jb-radio-group">
                   <label className="jb-radio">
-                    <input 
-                      type="radio" 
-                      name="jobType" 
+                    <input
+                      type="radio"
+                      name="jobType"
                       value=""
-                      checked={jobTypeFilter === ''}
-                      onChange={() => setJobTypeFilter('')}
+                      checked={jobTypeFilter === ""}
+                      onChange={() => setJobTypeFilter("")}
                     />
                     <span>All</span>
                   </label>
                   {jobTypes.map((type, index) => (
                     <label key={index} className="jb-radio">
-                      <input 
-                        type="radio" 
-                        name="jobType" 
+                      <input
+                        type="radio"
+                        name="jobType"
                         value={type}
                         checked={jobTypeFilter === type}
                         onChange={() => setJobTypeFilter(type)}
@@ -250,11 +262,11 @@ const JobBoard = () => {
                   ))}
                 </div>
               </div>
-              
+
               {/* Salary Range Filter */}
               <div className="jb-filter-group">
                 <h4>Salary Range</h4>
-                <select 
+                <select
                   value={salaryFilter}
                   onChange={(e) => setSalaryFilter(e.target.value)}
                   className="jb-select"
@@ -267,80 +279,85 @@ const JobBoard = () => {
                   <option value="$150,000">$150,000+</option>
                 </select>
               </div>
-              
+
               {/* Company Filter */}
               <div className="jb-filter-group">
                 <h4>Company</h4>
-                <select 
+                <select
                   value={companyFilter}
                   onChange={(e) => setCompanyFilter(e.target.value)}
                   className="jb-select"
                 >
                   <option value="">All Companies</option>
                   {companies.map((company, index) => (
-                    <option key={index} value={company}>{company}</option>
+                    <option key={index} value={company}>
+                      {company}
+                    </option>
                   ))}
                 </select>
               </div>
-              
+
               {/* Date Posted Filter */}
               <div className="jb-filter-group">
                 <h4>Date Posted</h4>
                 <div className="jb-radio-group">
                   <label className="jb-radio">
-                    <input 
-                      type="radio" 
-                      name="datePosted" 
+                    <input
+                      type="radio"
+                      name="datePosted"
                       value=""
-                      checked={datePostedFilter === ''}
-                      onChange={() => setDatePostedFilter('')}
+                      checked={datePostedFilter === ""}
+                      onChange={() => setDatePostedFilter("")}
                     />
                     <span>Any time</span>
                   </label>
                   <label className="jb-radio">
-                    <input 
-                      type="radio" 
-                      name="datePosted" 
+                    <input
+                      type="radio"
+                      name="datePosted"
                       value="Last 24 hours"
-                      checked={datePostedFilter === 'Last 24 hours'}
-                      onChange={() => setDatePostedFilter('Last 24 hours')}
+                      checked={datePostedFilter === "Last 24 hours"}
+                      onChange={() => setDatePostedFilter("Last 24 hours")}
                     />
                     <span>Last 24 hours</span>
                   </label>
                   <label className="jb-radio">
-                    <input 
-                      type="radio" 
-                      name="datePosted" 
+                    <input
+                      type="radio"
+                      name="datePosted"
                       value="Last week"
-                      checked={datePostedFilter === 'Last week'}
-                      onChange={() => setDatePostedFilter('Last week')}
+                      checked={datePostedFilter === "Last week"}
+                      onChange={() => setDatePostedFilter("Last week")}
                     />
                     <span>Last week</span>
                   </label>
                   <label className="jb-radio">
-                    <input 
-                      type="radio" 
-                      name="datePosted" 
+                    <input
+                      type="radio"
+                      name="datePosted"
                       value="Last month"
-                      checked={datePostedFilter === 'Last month'}
-                      onChange={() => setDatePostedFilter('Last month')}
+                      checked={datePostedFilter === "Last month"}
+                      onChange={() => setDatePostedFilter("Last month")}
                     />
                     <span>Last month</span>
                   </label>
                 </div>
               </div>
             </aside>
-            
+
             {/* Job Listings */}
             <div className="jb-job-list">
               <div className="jb-job-count">
                 <h2>{filteredJobs.length} Jobs Found</h2>
               </div>
-              
+
               {filteredJobs.length === 0 ? (
                 <div className="jb-no-results">
-                  <p>No jobs match your current filters. Try adjusting your search criteria.</p>
-                  <button 
+                  <p>
+                    No jobs match your current filters. Try adjusting your
+                    search criteria.
+                  </p>
+                  <button
                     className="jb-btn jb-btn-secondary"
                     onClick={resetFilters}
                   >
@@ -349,7 +366,7 @@ const JobBoard = () => {
                 </div>
               ) : (
                 <div className="jb-job-grid">
-                  {filteredJobs.map(job => (
+                  {filteredJobs.map((job) => (
                     <div key={job.id} className="jb-job-card">
                       <div className="jb-job-header">
                         <div className="jb-company-logo">
@@ -360,7 +377,7 @@ const JobBoard = () => {
                           <p className="jb-company-name">{job.company}</p>
                         </div>
                       </div>
-                      
+
                       <div className="jb-job-details">
                         <div className="jb-job-meta">
                           <div className="jb-meta-item">
@@ -381,9 +398,9 @@ const JobBoard = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="jb-job-actions">
-                        <button 
+                        <button
                           className="jb-btn jb-btn-primary"
                           onClick={() => handleViewDetails(job)}
                         >
@@ -398,13 +415,16 @@ const JobBoard = () => {
           </div>
         </div>
       </main>
-      
+
       {/* Post a Job Button */}
-      {(role=='alumni') &&
-      <button className='jb-post-job-btn' onClick={()=> navigate('/post-job')}>
-        Post a Job
-      </button>
-      }
+      {role == "alumni" && (
+        <button
+          className="jb-post-job-btn"
+          onClick={() => navigate("/post-job")}
+        >
+          Post a Job
+        </button>
+      )}
 
       {/* Job Details Modal */}
       {showModal && selectedJob && (
@@ -414,15 +434,18 @@ const JobBoard = () => {
             <button className="jb-modal-close" onClick={closeModal}>
               <X size={24} />
             </button>
-            
+
             <div className="jb-modal-header">
               <div className="jb-modal-company-logo">
-                <img src={selectedJob.logoUrl} alt={`${selectedJob.company} logo`} />
+                <img
+                  src={selectedJob.logoUrl}
+                  alt={`${selectedJob.company} logo`}
+                />
               </div>
               <div>
                 <h2>{selectedJob.title}</h2>
                 <p className="jb-modal-company">{selectedJob.company}</p>
-                
+
                 <div className="jb-modal-meta">
                   <div className="jb-meta-item">
                     <MapPin size={16} />
@@ -443,13 +466,13 @@ const JobBoard = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="jb-modal-body">
               <section className="jb-job-section">
                 <h3>Job Description</h3>
                 <p>{selectedJob.description}</p>
               </section>
-              
+
               <section className="jb-job-section">
                 <h3>Responsibilities</h3>
                 <ul className="jb-job-list-items">
@@ -458,7 +481,7 @@ const JobBoard = () => {
                   ))}
                 </ul>
               </section>
-              
+
               <section className="jb-job-section">
                 <h3>Requirements</h3>
                 <ul className="jb-job-list-items">
@@ -468,18 +491,24 @@ const JobBoard = () => {
                 </ul>
               </section>
             </div>
-            
+
             <div className="jb-modal-footer">
-              <button className="jb-btn jb-btn-primary jb-apply-btn">
-                Apply Now
-              </button>
+              <a
+                href={selectedJob.companyLink} // <-- use selectedJob instead of jobs
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className="jb-btn jb-btn-primary jb-apply-btn">
+                  Apply Now
+                </button>
+              </a>
             </div>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <Footer/>
+      <Footer />
     </div>
   );
 };
