@@ -8,6 +8,7 @@ import JobBoard from "./pages/JobBoard";
 import EventsPage from "./pages/EventsPage";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import PostJob from "./pages/PostJob";
+import AlumniProfile from "./pages/AlumniProfile";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/userTypeSelection" element={<UserTypeselection/>} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<AlumniProfile/>} />
           <Route path="/Jobs" element={<ProtectedRoutes><JobBoard/></ProtectedRoutes>} />
           <Route path="/Events" element={<ProtectedRoutes><EventsPage/></ProtectedRoutes>} />
           <Route path="/post-job" element={<ProtectedRoutes><PostJob/></ProtectedRoutes>} />
