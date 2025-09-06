@@ -4,12 +4,17 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes')
 const jobRoutes = require('./routes/jobRoutes')
+const profileRoutes = require('./routes/profileRoutes');
+const studentProfileRoutes = require('./routes/studentProfileRoutes');
+const path = require('path');
 const app = express();
 dotenv.config();
 
 //middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 5000, // 5 seconds timeout
@@ -24,6 +29,8 @@ mongoose.connect(process.env.MONGO_URL, {
 
 app.use("/api",authRoutes);
 app.use("/api/jobs",jobRoutes);
+app.use("/api/profile", profileRoutes); // for alumni 
+app.use("/api/student-profile", studentProfileRoutes); // for students 
 
 
 
