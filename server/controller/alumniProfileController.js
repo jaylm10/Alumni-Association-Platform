@@ -89,6 +89,52 @@ exports.createOrUpdateAlumniProfile = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get all alumni profiles
+ * @route   GET /api/profile/all
+ * @access  Private (only logged-in users can see)
+ */
+exports.getAllAlumniProfiles = async (req, res) => {
+  try {
+    // We fetch AlumniProfile, not the 'register' model
+    const alumniProfiles = await AlumniProfile.find({}).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: alumniProfiles.length,
+      profiles: alumniProfiles,
+    });
+  } catch (error) {
+    console.error('Error fetching all alumni profiles:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+/**
+ * @desc    Get a single alumni profile by its ID
+ * @route   GET /api/profile/:id
+ * @access  Private (only logged-in users can view profiles)
+ */
+exports.getProfileById = async (req, res) => {
+  try {
+    const profile = await AlumniProfile.findById(req.params.id);
+
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Alumni profile not found.' });
+    }
+
+    res.status(200).json({ success: true, profile });
+  } catch (error) {
+    console.error('Error fetching profile by ID:', error);
+    // If the ID format is invalid, Mongoose throws an error
+    if (error.kind === 'ObjectId') {
+        return res.status(404).json({ success: false, message: 'Alumni profile not found.' });
+    }
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
 
 
 // exports.createOrUpdateAlumniProfile = async (req, res) => {

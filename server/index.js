@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes')
 const jobRoutes = require('./routes/jobRoutes')
 const profileRoutes = require('./routes/profileRoutes');
+const studentProfileRoutes = require('./routes/studentProfileRoutes');
 const path = require('path');
 const app = express();
 dotenv.config();
@@ -28,7 +29,8 @@ mongoose.connect(process.env.MONGO_URL, {
 
 app.use("/api",authRoutes);
 app.use("/api/jobs",jobRoutes);
-app.use("/api/profile", profileRoutes);
+app.use("/api/profile", profileRoutes); // for alumni 
+app.use("/api/student-profile", studentProfileRoutes); // for students 
 
 
 
