@@ -667,3 +667,65 @@
     gap: 0.25rem;
   }
 }
+
+/* ... add this to the end of your AlumniProfile.css ... */
+
+.section-subtitle {
+  color: var(--text-light);
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+}
+
+.settings-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.toggle-group label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.toggle-group input[type="checkbox"] {
+  /* Simple custom checkbox */
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: var(--gray-300);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-group input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 4px;
+  left: 4px;
+  transition: left 0.3s;
+}
+
+.toggle-group input[type="checkbox"]:checked {
+  background: var(--success);
+}
+
+.toggle-group input[type="checkbox"]:checked::before {
+  left: 24px;
+}

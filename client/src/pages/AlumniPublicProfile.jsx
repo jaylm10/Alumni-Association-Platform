@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+// Import useNavigate to redirect the user after creating a conversation
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Mail, Linkedin, Github, MapPin, Briefcase, GraduationCap, Globe, Loader2, MessageSquare, Calendar } from "lucide-react";
 
-import './AlumniPublicProfile.css'; // New CSS file for this component
+import './AlumniPublicProfile.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const AlumniPublicProfile = () => {
-  const { alumniId } = useParams(); // Gets the ':alumniId' from the URL
+  const { alumniId } = useParams();
+  const navigate = useNavigate(); // Hook for programmatic navigation
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConnecting, setIsConnecting] = useState(false); // State for the button's loading indicator
 
   useEffect(() => {
     const fetchAlumnusProfile = async () => {
@@ -33,6 +36,39 @@ const AlumniPublicProfile = () => {
 
     fetchAlumnusProfile();
   }, [alumniId]);
+  
+  // --- NEW: FUNCTION TO HANDLE SEND MESSAGE CLICK ---
+  const handleSendMessage = async () => {
+    if (!profile || !profile.user) {
+        toast.error("Cannot initiate chat, user data is missing.");
+        return;
+    }
+
+    setIsConnecting(true);
+    try {
+        const token = localStorage.getItem('token');
+        
+        // Call the endpoint to find or create a conversation
+        const { data } = await axios.post('http://localhost:3000/api/conversations/start', 
+            { recipientId: profile.user }, // The alumnus's user ID is in the `user` field of their profile
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (data.success && data.conversation?._id) {
+            // On success, navigate to the messages page with the specific conversation ID
+            navigate(`/messages/${data.conversation._id}`);
+        } else {
+            toast.error("Could not start a conversation.");
+        }
+
+    } catch (error) {
+        console.error("Error starting conversation:", error);
+        toast.error(error.response?.data?.message || "An error occurred.");
+    } finally {
+        setIsConnecting(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -89,23 +125,34 @@ const AlumniPublicProfile = () => {
                 </div>
               </div>
 
-              {/* Connect Actions Section */}
+              {/* --- UPDATED CONNECT ACTIONS SECTION --- */}
               <div className="profile-section connect-actions">
-                <button className="btn btn-primary">
-                    <MessageSquare size={16}/> Send Message
-                </button>
-                <button className="btn btn-secondary">
+                {profile.connectionSettings?.isAcceptingMessages && (
+                  <button className="btn btn-primary" onClick={handleSendMessage} disabled={isConnecting}>
+                    {isConnecting ? (
+                        <Loader2 className="animate-spin" size={16} />
+                    ) : (
+                        <MessageSquare size={16}/>
+                    )}
+                    {isConnecting ? 'Starting Chat...' : 'Send Message'}
+                  </button>
+                )}
+                {profile.connectionSettings?.isAcceptingMeetings && (
+                  <button className="btn btn-secondary">
                     <Calendar size={16}/> Request a Meeting
-                </button>
+                  </button>
+                )}
+                {!profile.connectionSettings?.isAcceptingMessages && !profile.connectionSettings?.isAcceptingMeetings && (
+                  <p className="connections-closed">This alumnus is not currently accepting new connections.</p>
+                )}
               </div>
 
-              {/* Bio Section */}
+              {/* ... The rest of your Bio, Education, Skills, and Contact sections remain the same ... */}
               <div className="profile-section">
                 <h3 className="section-title">About</h3>
                 <p className="profile-bio">{profile.bio || "No bio provided."}</p>
               </div>
 
-              {/* Education Section */}
               <div className="profile-section">
                 <h3 className="section-title"><GraduationCap size={20}/> Education</h3>
                 <div className="education-list">
@@ -123,7 +170,6 @@ const AlumniPublicProfile = () => {
                 </div>
               </div>
 
-              {/* Skills Section */}
               <div className="profile-section">
                 <h3 className="section-title">Skills & Expertise</h3>
                 <div className="skills-container">
@@ -133,7 +179,6 @@ const AlumniPublicProfile = () => {
                 </div>
               </div>
 
-              {/* Contact Section */}
               <div className="profile-section">
                 <h3 className="section-title">Contact & Links</h3>
                 <div className="contact-display">
@@ -153,3 +198,4 @@ const AlumniPublicProfile = () => {
 };
 
 export default AlumniPublicProfile;
+

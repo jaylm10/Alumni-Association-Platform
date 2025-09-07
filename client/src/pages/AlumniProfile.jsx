@@ -55,6 +55,10 @@ const AlumniProfile = () => {
       github: "",
       website: "",
     },
+    connectionSettings: {
+        isAcceptingMessages: true,
+        isAcceptingMeetings: true,
+    },
   });
 
   // Temporary state for new skill input
@@ -83,6 +87,7 @@ const AlumniProfile = () => {
           contact: data.profile.contact || {},
           education: data.profile.education || [],
           skills: data.profile.skills || [],
+          connectionSettings: data.profile.connectionSettings || { isAcceptingMessages: true, isAcceptingMeetings: true }
         });
         setHasProfile(true);
       } catch (error) {
@@ -237,6 +242,7 @@ const AlumniProfile = () => {
         JSON.stringify(profileData.education.map(({ id, ...rest }) => rest))
       );
       formData.append("skills", JSON.stringify(profileData.skills));
+      formData.append("connectionSettings", JSON.stringify(profileData.connectionSettings));
 
       // Append the actual file object if it exists
       if (profileData.profilePicture) {
