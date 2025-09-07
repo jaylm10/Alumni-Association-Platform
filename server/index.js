@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes')
 const jobRoutes = require('./routes/jobRoutes')
 const profileRoutes = require('./routes/profileRoutes');
 const studentProfileRoutes = require('./routes/studentProfileRoutes');
+const conversationRoutes = require('./routes/conversationRoutes');
 const path = require('path');
 const app = express();
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/api",authRoutes);
 app.use("/api/jobs",jobRoutes);
 app.use("/api/profile", profileRoutes); // for alumni 
 app.use("/api/student-profile", studentProfileRoutes); // for students 
+app.use("/api/conversations", conversationRoutes);
 
 
 
