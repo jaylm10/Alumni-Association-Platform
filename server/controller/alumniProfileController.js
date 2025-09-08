@@ -1,4 +1,5 @@
 const AlumniProfile  = require('../models/alumniProfile')
+const User = require('../models/user')
 
 exports.getAlumniProfile = async (req, res) => {
   try {
@@ -29,7 +30,7 @@ exports.getAlumniProfile = async (req, res) => {
 
 
 exports.createOrUpdateAlumniProfile = async (req, res) => {
-  // --- This part is from your working code ---
+  // 1. Parse all fields from FormData
   const {
     fullName,
     bio,
@@ -38,25 +39,25 @@ exports.createOrUpdateAlumniProfile = async (req, res) => {
     location,
   } = req.body;
   
-  // Parse stringified fields from FormData, just like you were doing
   const contact = JSON.parse(req.body.contact || '{}');
   const education = JSON.parse(req.body.education || '[]');
   const skills = JSON.parse(req.body.skills || '[]');
-  
-  // --- NEW: Parse the connectionSettings field in the same way ---
   const connectionSettings = JSON.parse(req.body.connectionSettings || '{}');
 
   const profileFields = { user: req.user.id };
 
-  // Handle the profile picture URL
+  // 2. Handle file upload and URL construction
+  let pictureUrlToSync;
   if (req.file) {
     const filePath = req.file.path.replace(/\\/g, "/").substring("public/".length);
     profileFields.profilePictureUrl = `${process.env.SERVER_URL}/${filePath}`;
+    pictureUrlToSync = profileFields.profilePictureUrl;
   } else if (req.body.profilePictureUrl) {
     profileFields.profilePictureUrl = req.body.profilePictureUrl;
+    pictureUrlToSync = req.body.profilePictureUrl;
   }
-
-  // Build the rest of the profile object
+  
+  // 3. Build the complete profile object
   if (fullName) profileFields.fullName = fullName;
   if (bio) profileFields.bio = bio;
   if (currentCompany) profileFields.currentCompany = currentCompany;
@@ -65,29 +66,25 @@ exports.createOrUpdateAlumniProfile = async (req, res) => {
   if (contact) profileFields.contact = contact;
   if (education) profileFields.education = education;
   if (skills) profileFields.skills = skills;
-  
-  // --- NEW: Add the parsed settings to the object to be saved ---
   if (connectionSettings) profileFields.connectionSettings = connectionSettings;
 
   try {
+    // 4. Save to AlumniProfile model
     const profile = await AlumniProfile.findOneAndUpdate(
       { user: req.user.id },
       { $set: profileFields },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     
-    res.status(200).json({
-      success: true,
-      message: 'Profile saved successfully.',
-      profile,
-    });
+    // 5. Sync picture URL to the main User model
+    if (pictureUrlToSync) {
+      await User.findByIdAndUpdate(req.user.id, { profilePictureUrl: pictureUrlToSync });
+    }
+
+    res.status(200).json({ success: true, profile });
   } catch (error) {
     console.error('Error saving alumni profile:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error: Could not save profile.',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 

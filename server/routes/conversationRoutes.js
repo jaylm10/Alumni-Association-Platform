@@ -3,7 +3,8 @@ const router = express.Router();
 const {
   startConversation,
   getConversations,
-  getMessagesForConversation
+  getMessagesForConversation,
+  sendMessage
 } = require('../controller/conversationController');
 const authMiddleware = require('../middleware/auth');
 
@@ -15,6 +16,8 @@ router.post('/start', startConversation);
 
 // Route to get all of the current user's conversations
 router.get('/', getConversations);
+
+router.post('/messages',sendMessage);
 
 // Route to get all messages for a specific conversation
 router.get('/:id/messages', getMessagesForConversation);

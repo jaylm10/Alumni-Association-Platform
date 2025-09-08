@@ -5,6 +5,10 @@ const userSchema = new mongoose.Schema({
     email:String,
     password:String,
     role:String,
+    profilePictureUrl: {
+    type: String,
+    default: '' // Start with an empty string
+  }
 });
 
 module.exports = mongoose.model("register", userSchema);

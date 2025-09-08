@@ -1,4 +1,5 @@
 const StudentProfile = require('../models/studentProfile');
+const User = require("../models/user")
 
 /**
  * @desc    Get the profile of the currently logged-in student
@@ -47,16 +48,18 @@ exports.createOrUpdateStudentProfile = async (req, res) => {
   if (seeking) profileFields.seeking = seeking;
   if (contact) profileFields.contact = contact;
 
-  // --- HANDLE FILE URLS FROM req.files ---
-  // req.files will be an object like: { profilePicture: [file], resume: [file] }
-  
+  // --- 2. LOGIC TO CAPTURE THE URL FOR SYNCING ---
+  let pictureUrlToSync; // Variable to hold the URL
+
   // Handle Profile Picture
   if (req.files && req.files.profilePicture) {
     const file = req.files.profilePicture[0];
     const filePath = file.path.replace(/\\/g, "/").substring("public/".length);
     profileFields.profilePictureUrl = `${process.env.SERVER_URL}/${filePath}`;
+    pictureUrlToSync = profileFields.profilePictureUrl; // Capture the new URL
   } else if (req.body.profilePictureUrl) {
     profileFields.profilePictureUrl = req.body.profilePictureUrl;
+    pictureUrlToSync = req.body.profilePictureUrl; // Capture the existing URL
   }
 
   // Handle Resume
@@ -69,11 +72,18 @@ exports.createOrUpdateStudentProfile = async (req, res) => {
   }
 
   try {
+    // 3. Save the main student profile first
     const profile = await StudentProfile.findOneAndUpdate(
       { user: req.user.id },
       { $set: profileFields },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
+    
+    // --- 4. SYNC THE PICTURE URL TO THE MAIN USER MODEL ---
+    if (pictureUrlToSync) {
+      await User.findByIdAndUpdate(req.user.id, { profilePictureUrl: pictureUrlToSync });
+    }
+
     res.status(200).json({ success: true, profile });
   } catch (error) {
     console.error('Error saving student profile:', error);

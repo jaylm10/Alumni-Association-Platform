@@ -107,3 +107,50 @@ exports.getMessagesForConversation = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+/**
+ * @desc    Create a new message in a conversation
+ * @route   POST /api/conversations/messages
+ * @access  Private
+ */
+exports.sendMessage = async (req, res) => {
+  try {
+    const { message, conversationId } = req.body;
+    const senderId = req.user.id; // Get sender from the authenticated user token
+
+    // 1. Create the new message document
+    const newMessage = new Message({
+      conversationId,
+      senderId,
+      message,
+    });
+
+    // 2. Save the message and update the conversation's `messages` array and `lastMessage` field.
+    // We run these in parallel for better performance.
+    const [savedMessage] = await Promise.all([
+      newMessage.save(),
+      Conversation.findByIdAndUpdate(conversationId, {
+        $push: { messages: newMessage._id },
+        lastMessage: message, // This updates the preview in the conversation list
+      }),
+    ]);
+
+    // 3. Populate the sender's info on the message before sending it back.
+    // This is crucial so the frontend receives the message in the same format
+    // as when it fetches the message history.
+    const populatedMessage = await Message.findById(savedMessage._id).populate(
+      'senderId',
+      'name profilePictureUrl'
+    );
+
+    // The socket event will be handled separately for real-time, but the API must
+    // return the created message so the sender's UI can update instantly.
+    res.status(201).json({ success: true, message: populatedMessage });
+
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+

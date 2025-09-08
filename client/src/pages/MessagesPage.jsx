@@ -3,11 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Send, Loader2, Search, ArrowLeft } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode'; // You may need to install this: npm install jwt-decode
+import { jwtDecode } from 'jwt-decode';
+import io from 'socket.io-client'; // <-- 1. IMPORT SOCKET.IO CLIENT
 
 import './MessagesPage.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+
+// --- 2. ESTABLISH THE SOCKET CONNECTION ---
+// Define the socket outside the component to prevent it from re-connecting on every re-render.
+const socket = io('http://localhost:3000'); // Your backend server URL
 
 const MessagesPage = () => {
   const [conversations, setConversations] = useState([]);
@@ -18,11 +23,11 @@ const MessagesPage = () => {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const { conversationId } = useParams(); // To handle opening a specific chat from a URL
+  const { conversationId } = useParams();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
 
-  // 1. Get the current user's ID from the token
+  // 1. Get current user from token
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -45,9 +50,8 @@ const MessagesPage = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setConversations(data.conversations);
-        // If a conversationId is in the URL, select it
         if (conversationId) {
-            setSelectedConversationId(conversationId);
+          setSelectedConversationId(conversationId);
         }
       } catch (error) {
         toast.error("Failed to load your conversations.");
@@ -79,17 +83,83 @@ const MessagesPage = () => {
     fetchMessages();
   }, [selectedConversationId]);
 
-  // 4. Scroll to the bottom of the chat window when new messages arrive
+  // --- 4. SET UP REAL-TIME LISTENERS & JOIN SOCKET ROOM ---
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    // Announce the user's presence to the server
+    socket.emit('join', currentUser.id);
+
+    // Listener for incoming messages
+    const messageListener = (incomingMessage) => {
+      // Check if the message belongs to the currently open conversation
+      if (incomingMessage.conversationId === selectedConversationId) {
+        // Create a message object that matches the structure from the database for consistency
+        const formattedMessage = { ...incomingMessage, senderId: { _id: incomingMessage.senderId } };
+        setMessages((prevMessages) => [...prevMessages, formattedMessage]);
+      } else {
+        toast.info(`You have a new message!`);
+        // Optional: you could refetch conversations here to show a notification dot
+      }
+    };
+
+    socket.on('newMessage', messageListener);
+
+    // Clean up the listener when the component unmounts or the selected chat changes
+    // This is crucial to prevent duplicate listeners.
+    return () => {
+      socket.off('newMessage', messageListener);
+    };
+  }, [currentUser, selectedConversationId]); // <-- Re-subscribe if the selected chat changes
+
+
+  // 5. Scroll to the bottom of the chat window when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
   // Helper to find the other participant in a conversation
   const getOtherParticipant = (conversation) => {
+    if (!conversation) return null; // <-- Add safety check
     return conversation.participants.find(p => p._id !== currentUser?.id);
   };
   
   const selectedConversation = conversations.find(c => c._id === selectedConversationId);
+  
+  // --- 6. IMPLEMENT SEND MESSAGE FUNCTION ---
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (newMessage.trim() === '' || !selectedConversation) return;
+
+    const token = localStorage.getItem('token');
+    const otherUser = getOtherParticipant(selectedConversation);
+    if (!otherUser) return; // Safety check
+
+    const messagePayload = {
+        message: newMessage,
+        conversationId: selectedConversationId,
+        senderId: currentUser.id,
+        receiverId: otherUser._id
+    };
+
+    try {
+        // a. Save message to the database via API for persistence
+        const { data } = await axios.post('http://localhost:3000/api/conversations/messages', messagePayload, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // b. Add the new message to our own screen instantly for a snappy UI
+        setMessages(prev => [...prev, data.message]);
+        setNewMessage('');
+        
+        // c. Emit the message through the socket to the other user for real-time delivery
+        socket.emit('sendMessage', messagePayload);
+        
+    } catch (error) {
+        toast.error("Failed to send message.");
+    }
+  };
+
 
   return (
     <div className="messages-page-container">
@@ -121,7 +191,7 @@ const MessagesPage = () => {
                       <img src={otherUser?.profilePictureUrl || 'https://via.placeholder.com/50'} alt={otherUser?.name} />
                       <div className="conversation-details">
                         <span className="conversation-name">{otherUser?.name}</span>
-                        <span className="conversation-preview">{/* Last message would go here */}</span>
+                        <span className="conversation-preview">{convo.lastMessage}</span>
                       </div>
                     </div>
                   );
@@ -156,17 +226,19 @@ const MessagesPage = () => {
                   )}
                   <div ref={messagesEndRef} />
                 </div>
-                <div className="message-input-container">
+                {/* --- UPDATE THE FORM TO USE THE NEW FUNCTION --- */}
+                <form className="message-input-container" onSubmit={handleSendMessage}>
                   <input
                     type="text"
                     placeholder="Type a message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
+                    autoComplete="off"
                   />
-                  <button className="send-button">
+                  <button type="submit" className="send-button">
                     <Send size={20} />
                   </button>
-                </div>
+                </form>
               </>
             ) : (
               <div className="no-chat-selected">
@@ -181,3 +253,4 @@ const MessagesPage = () => {
 };
 
 export default MessagesPage;
+
