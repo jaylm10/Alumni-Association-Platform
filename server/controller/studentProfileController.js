@@ -90,3 +90,19 @@ exports.createOrUpdateStudentProfile = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
+
+exports.getAllStudentProfiles = async (req, res) => {
+  try {
+    const studentProfiles = await StudentProfile.find({}).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: studentProfiles.length,
+      profiles: studentProfiles,
+    });
+  } catch (error) {
+    console.error('Error fetching all student profiles:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+

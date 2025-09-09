@@ -3,7 +3,7 @@ const router = express.Router();
 
 // --- IMPORTANT ---
 // Import the STUDENT controller and the NEW upload middleware
-const { getStudentProfile, createOrUpdateStudentProfile } = require('../controller/studentProfileController');
+const { getStudentProfile, createOrUpdateStudentProfile,getAllStudentProfiles  } = require('../controller/studentProfileController');
 const uploadStudentFiles = require('../middleware/uploadStudentFiles');
 
 // Standard middleware
@@ -21,5 +21,7 @@ router.get('/me', authMiddleware, getStudentProfile);
 // @access  Private
 // This route now uses the middleware that handles both picture and resume uploads
 router.post('/', authMiddleware, uploadStudentFiles, createOrUpdateStudentProfile);
+
+router.get("/all", authMiddleware, getAllStudentProfiles)
 
 module.exports = router;

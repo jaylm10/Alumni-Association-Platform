@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Header.css";
-import {
-  Menu,
-  UserCircle,
-  ChevronDown,
-} from "lucide-react";
+import { Menu, UserCircle, ChevronDown, LogOut, MessageSquare, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContextProvider";
 
@@ -12,7 +8,10 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { role } = useContext(AuthContext); // You already have the role here
+  
+  // Cleaned up: get user and role from the same context
+  const { user } = useContext(AuthContext);
+  const {role} = useContext(AuthContext)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,116 +21,114 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    // Also clear the user object that holds the role
-    localStorage.removeItem("user"); 
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
     setDropdownOpen(false);
-    navigate("/login");
+    window.location.href = "/login"; // Full refresh to clear all state
   };
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  // --- NEW FUNCTION TO HANDLE PROFILE NAVIGATION ---
   const handleProfileNavigation = () => {
-    // Check the role from the context
-    if (role === 'student') {
-      navigate('/student-profile');
-    } else if (role === 'alumni') {
-      navigate('/alumni-profile');
-    } else {
-      // Fallback in case the role isn't loaded yet or is invalid
-      console.error("User role not found, cannot navigate to profile.");
-      // You could navigate to a default dashboard or show a toast notification here
-      navigate('/'); 
-    }
-    setDropdownOpen(false); // Close dropdown after clicking
+    const path = role === "student" ? "/student-profile" : "/alumni-profile";
+    navigate(path);
+    setDropdownOpen(false);
   };
 
   return (
-    <div className="home-container">
-      <header className="navbar">
-        <div className="nav-container">
-          <div className="nav-logo">
-            <a href="/" className="logo-link">
-              <div className="logo-icon">
-                <span>AC</span>
-              </div>
-              <span className="logo-text">Alumni Connect</span>
-            </a>
-          </div>
+    <header className="navbar">
+      <div className="navbar__container">
+        
+        {/* Logo */}
+        <a href="/" className="navbar__logo">
+          <div className="navbar__logo-icon"><span>AC</span></div>
+          <span className="navbar__logo-text">Alumni Connect</span>
+        </a>
 
-          {/* Desktop Navigation */}
-          <nav className="desktop-nav">
-            <a href="/" className="nav-link">Home</a>
-            <a href="/alumni" className="nav-link">Alumni</a>
-            <a href="/jobs" className="nav-link">Jobs</a>
-            <a href="/events" className="nav-link">Events</a>
-            <a href="/about" className="nav-link">About</a>
-          </nav>
+        {/* Desktop Navigation Links */}
+        <nav className="navbar__links">
+          <a href="/" className="navbar__link">Home</a>
+          <a href="/alumni" className="navbar__link">Alumni</a>
+          {role === "alumni" && <a href="/students" className="navbar__link">Students</a>}
+          <a href="/jobs" className="navbar__link">Jobs</a>
+          <a href="/events" className="navbar__link">Events</a>
+          <a href="/about" className="navbar__link">About</a>
+        </nav>
 
-          {/* Auth Buttons */}
-          <div className="auth-buttons">
-            {!isLoggedIn ? (
-              <>
-                <a href="/login" className="btn btn-login">Login</a>
-                <a href="/userTypeSelection" className="btn btn-register">Register</a>
-              </>
-            ) : (
-              <div className="profile-dropdown-container">
-                <button onClick={toggleDropdown} className="profile-btn">
-                  <UserCircle className="profile-icon" />
-                  <ChevronDown size={16} />
-                </button>
-
-                {dropdownOpen && (
-                  <div className="dropdown-menu">
-                    {/* --- UPDATED PROFILE LINK --- */}
-                    {/* This is now a button that calls our new function */}
-                    <button onClick={handleProfileNavigation} className="dropdown-item">
-                      Profile
-                    </button>
-                    <button onClick={handleLogout} className="dropdown-item">
-                      Logout
-                    </button>
-                  </div>
+        {/* Actions (Login/Register or Profile Dropdown) */}
+        <div className="navbar__actions">
+          {!isLoggedIn ? (
+            <div className="navbar__auth-buttons">
+              <a href="/login" className="btn btn--secondary">Login</a>
+              <a href="/userTypeSelection" className="btn btn--primary">Register</a>
+            </div>
+          ) : (
+            <div className="navbar-dropdown">
+              <button onClick={toggleDropdown} className="navbar-dropdown__toggle">
+                {user && user.profilePictureUrl ? (
+                  <img src={user.profilePictureUrl} alt="Profile" className="navbar-dropdown__user-avatar" />
+                ) : (
+                  <UserCircle className="navbar-dropdown__user-icon" />
                 )}
-              </div>
-            )}
-          </div>
+                <ChevronDown size={18} className={`navbar-dropdown__chevron ${dropdownOpen ? 'is-open' : ''}`} />
+              </button>
 
-          {/* Mobile menu button */}
-          <div className="mobile-menu-toggle">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="btn-menu"
-            >
-              <Menu className="menu-icon" />
-              <span className="sr-only">Open main menu</span>
-            </button>
-          </div>
+              {dropdownOpen && (
+                <div className="navbar-dropdown__menu">
+                  <button onClick={handleProfileNavigation} className="navbar-dropdown__item">
+                    <User size={16} /> My Profile
+                  </button>
+                  <a href="/messages" className="navbar-dropdown__item" onClick={() => setDropdownOpen(false)}>
+                    <MessageSquare size={16} /> Messages
+                  </a>
+                  <div className="navbar-dropdown__separator"></div>
+                  <button onClick={handleLogout} className="navbar-dropdown__item navbar-dropdown__item--logout">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="mobile-menu">
-            <nav className="mobile-nav">
-              <a href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Home</a>
-              <a href="/alumni" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Alumni</a>
-              <a href="/jobs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Jobs</a>
-              <a href="/events" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Events</a>
-              <a href="/about" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">About</a>
-              <div className="mobile-auth">
-                <a href="/login" onClick={() => setMobileMenuOpen(false)} className="btn mobile-btn-login">Login</a>
-                <a href="/register" onClick={() => setMobileMenu-Open(false)} className="btn mobile-btn-register">Register</a>
-              </div>
-            </nav>
-          </div>
-        )}
-      </header>
-    </div>
+        {/* Mobile Menu Toggle */}
+        <div className="navbar__mobile-toggle">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <Menu size={28} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="navbar__mobile-menu">
+          <a href="/" onClick={() => setMobileMenuOpen(false)}>Home</a>
+          <a href="/alumni" onClick={() => setMobileMenuOpen(false)}>Alumni</a>
+          {role === 'alumni' && <a href="/students" onClick={() => setMobileMenuOpen(false)}>Students</a>}
+          <a href="/jobs" onClick={() => setMobileMenuOpen(false)}>Jobs</a>
+          <a href="/events" onClick={() => setMobileMenuOpen(false)}>Events</a>
+          <a href="/about" onClick={() => setMobileMenuOpen(false)}>About</a>
+          <div className="navbar-dropdown__separator"></div>
+          
+          {isLoggedIn ? (
+            <>
+              <button onClick={() => { handleProfileNavigation(); setMobileMenuOpen(false); }}>My Profile</button>
+              <a href="/messages" onClick={() => setMobileMenuOpen(false)}>Messages</a>
+              <button onClick={handleLogout} className="navbar-dropdown__item--logout">Logout</button>
+            </>
+          ) : (
+            <div className="navbar__mobile-auth">
+              <a href="/login" className="btn btn--secondary">Login</a>
+              <a href="/userTypeSelection" className="btn btn--primary">Register</a>
+            </div>
+          )}
+        </div>
+      )}
+    </header>
   );
 };
 
 export default Header;
+

@@ -13,6 +13,7 @@ import StudentProfile from "./pages/StudentProfile";
 import Alumni from "./pages/Alumni";
 import AlumniPublicProfile from "./pages/AlumniPublicProfile";
 import MessagesPage from "./pages/MessagesPage";
+import Students from "./pages/Students";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/student-profile" element={<StudentProfile />} />
+        <Route path="/students" element={<Students/>}/>
         <Route path="/alumni-profile" element={<AlumniProfile />} />
         <Route path="/alumni" element={<Alumni />} />
         <Route path="/alumni/:alumniId" element={<AlumniPublicProfile />} />

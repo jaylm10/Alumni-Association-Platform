@@ -95,8 +95,16 @@ exports.createOrUpdateAlumniProfile = async (req, res) => {
  */
 exports.getAllAlumniProfiles = async (req, res) => {
   try {
-    // We fetch AlumniProfile, not the 'register' model
-    const alumniProfiles = await AlumniProfile.find({}).sort({ createdAt: -1 });
+    // Get the logged-in user's ID from the token (provided by authMiddleware)
+    const loggedInUserId = req.user.id;
+
+    // --- THIS IS THE KEY CHANGE ---
+    // Modify the query to find all profiles where the 'user' field
+    // is "not equal to" ($ne) the loggedInUserId.
+    const alumniProfiles = await AlumniProfile.find({
+      user: { $ne: loggedInUserId }
+    }).sort({ createdAt: -1 });
+    // --- END OF CHANGE ---
 
     res.status(200).json({
       success: true,
