@@ -12,6 +12,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const studentProfileRoutes = require('./routes/studentProfileRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 
 
 const app = express();
@@ -51,6 +52,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/student-profile", studentProfileRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/conversations", conversationRoutes);
+app.use('/api/events', eventRoutes);
 
 
 // --- 6. UPDATE HOW THE SERVER STARTS ---

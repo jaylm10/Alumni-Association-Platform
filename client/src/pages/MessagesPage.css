@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  overflow: hidden;
+  overflow:scroll; /* This is okay on the very top container */
 }
 
 .messages-main {
@@ -16,6 +16,7 @@
   display: grid;
   grid-template-columns: 350px 1fr;
   width: 100%;
+  /* This is the total height available for the chat layout */
   height: calc(100vh - 70px); /* Adjust based on your Header height */
   border-top: 1px solid #e4e7eb;
 }
@@ -26,11 +27,14 @@
   flex-direction: column;
   background-color: #ffffff;
   border-right: 1px solid #e4e7eb;
+  /* Make sidebar scrollable if conversations overflow */
+  max-height: 100%;
 }
 
 .sidebar-header {
   padding: 1rem;
   border-bottom: 1px solid #e4e7eb;
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .sidebar-header h2 {
@@ -62,7 +66,7 @@
 
 .conversation-list {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* This makes the conversation list scrollable */
 }
 
 .conversation-item {
@@ -115,11 +119,13 @@
   padding-top: 2rem;
 }
 
-/* ----- RIGHT PANEL: CHAT WINDOW ----- */
+/* ----- RIGHT PANEL: CHAT WINDOW (CRITICAL FIXES HERE) ----- */
 .chat-window {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* Take the full height given by the grid layout */
+  height: 100%; 
+  background-color: #f3f4f6;
 }
 
 .chat-header {
@@ -130,10 +136,11 @@
   background-color: #ffffff;
   border-bottom: 1px solid #e4e7eb;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  flex-shrink: 0; /* Prevents the header from shrinking */
 }
 
 .chat-header .back-button {
-  display: none; /* Hidden on desktop */
+  display: none;
   background: none;
   border: none;
   cursor: pointer;
@@ -153,13 +160,14 @@
 }
 
 .message-list {
-  flex-grow: 1;
   padding: 1.5rem;
-  overflow-y: auto;
-  background-color: #f3f4f6;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  /* --- THIS IS THE FIX --- */
+  flex-grow: 1;      /* 1. Makes this element fill all available vertical space */
+  overflow-y: auto;  /* 2. Adds a scrollbar ONLY when the content is too tall */
+  /* --- END OF FIX --- */
 }
 
 .message {
@@ -180,10 +188,11 @@
   border-radius: 18px;
   font-size: 0.95rem;
   line-height: 1.5;
+  word-break: break-word; /* Prevents long words from overflowing */
 }
 
 .message.sent .message-bubble {
-  background-color: #1e40af; /* Primary color */
+  background-color: #1e40af;
   color: #ffffff;
   border-bottom-right-radius: 4px;
 }
@@ -213,6 +222,12 @@
   padding: 1rem 1.5rem;
   background-color: #ffffff;
   border-top: 1px solid #e4e7eb;
+  flex-shrink: 0; /* Prevents the input from shrinking */
+}
+
+.message-input-container form {
+    display: flex;
+    width: 100%;
 }
 
 .message-input-container input {
@@ -274,3 +289,4 @@
     display: block;
   }
 }
+

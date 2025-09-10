@@ -14,6 +14,7 @@ import Alumni from "./pages/Alumni";
 import AlumniPublicProfile from "./pages/AlumniPublicProfile";
 import MessagesPage from "./pages/MessagesPage";
 import Students from "./pages/Students";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -26,8 +27,9 @@ function App() {
         <Route path="/student-profile" element={<StudentProfile />} />
         <Route path="/students" element={<Students/>}/>
         <Route path="/alumni-profile" element={<AlumniProfile />} />
-        <Route path="/alumni" element={<Alumni />} />
+        <Route path="/alumni" element={<ProtectedRoutes><Alumni /></ProtectedRoutes>} />
         <Route path="/alumni/:alumniId" element={<AlumniPublicProfile />} />
+        <Route path="/about" element={<About />} />
         {/* --- ADD THIS NEW ROUTE --- */}
         <Route path="/messages" element={<MessagesPage/>} />
         {/* Optional: A route to open a specific chat directly */}

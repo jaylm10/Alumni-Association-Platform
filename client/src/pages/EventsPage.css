@@ -1129,3 +1129,39 @@ input, select, textarea {
     display: none;
   }
 }
+
+/* Add to EventsPage.css */
+.ep-event-card {
+  position: relative; /* Required for positioning the delete button */
+}
+
+.ep-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #ef4444; /* red */
+  border: 1px solid #ef4444;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.ep-delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+/* Add to EventsPage.css */
+.ep-register-btn.registered {
+  background-color: #22c55e; /* Green color for success */
+  color: white;
+  cursor: not-allowed;
+  border-color: #22c55e;
+}

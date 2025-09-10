@@ -1,0 +1,211 @@
+/* ----- GLOBAL STYLES (from your project) ----- */
+:root {
+  --primary-color: #1e40af;
+  --primary-color-dark: #1e3a8a;
+  --accent-color: #FF8C00;
+  --accent-color-dark: #E67E00;
+  --text-color-dark: #18181b;
+  --text-color: #3f3f46;
+  --text-color-light: #71717a;
+  --bg-color: #ffffff;
+  --bg-color-alt: #f9fafb;
+  --border-color: #e5e7eb;
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --transition: all 0.2s ease-in-out;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.btn--primary { background-color: var(--accent-color); color: var(--bg-color); }
+.btn--primary:hover { background-color: var(--accent-color-dark); }
+.btn--secondary { background-color: var(--bg-color); color: var(--primary-color); border-color: var(--primary-color); }
+.btn--secondary:hover { background-color: var(--primary-color); color: var(--bg-color); }
+
+/* ----- ABOUT PAGE LAYOUT ----- */
+.about-page {
+  background-color: var(--bg-color);
+}
+.about-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+.about-section {
+  padding: 4rem 0;
+}
+.about-section__title {
+  text-align: center;
+  font-size: 2.25rem;
+  color: var(--text-color-dark);
+  margin-bottom: 2.5rem;
+}
+
+/* ----- HERO SECTION ----- */
+.about-hero {
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  text-align: center;
+  padding: 5rem 0;
+}
+.about-hero__title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+.about-hero__subtitle {
+  font-size: 1.25rem;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+/* ----- MISSION SECTION ----- */
+.about-mission {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+}
+.about-mission__text h2 {
+  font-size: 2.5rem;
+  color: var(--text-color-dark);
+  margin-bottom: 1.5rem;
+}
+.about-mission__text p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+}
+.about-mission__image img {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+/* ----- FEATURES SECTION ----- */
+.about-features {
+  background-color: var(--bg-color-alt);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+.feature-card {
+  background-color: var(--bg-color);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: var(--transition);
+}
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+.feature-card__icon {
+  display: inline-flex;
+  padding: 1rem;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  margin-bottom: 1.5rem;
+}
+.feature-card h3 {
+  font-size: 1.25rem;
+  color: var(--text-color-dark);
+  margin-bottom: 0.75rem;
+}
+.feature-card p {
+  color: var(--text-color-light);
+  font-size: 0.95rem;
+}
+
+/* ----- FOR WHOM SECTION ----- */
+.for-whom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.for-whom-card {
+  padding: 2rem;
+  background: var(--bg-color-alt);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.for-whom-card__icon {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+.for-whom-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ----- CREATOR SECTION ----- */
+.about-creator {
+  text-align: center;
+  background-color: var(--bg-color-alt);
+}
+.creator-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1.5rem;
+  border: 4px solid var(--bg-color);
+  box-shadow: var(--shadow-md);
+}
+.creator-bio {
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--text-color-light);
+}
+
+/* ----- CALL TO ACTION (CTA) SECTION ----- */
+.about-cta {
+  background-color: var(--primary-color-dark);
+  color: var(--bg-color);
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+.about-cta h2 {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+.about-cta p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* ----- RESPONSIVE DESIGN ----- */
+@media (max-width: 768px) {
+  .about-hero__title {
+    font-size: 2.5rem;
+  }
+  .about-mission {
+    grid-template-columns: 1fr;
+  }
+  .for-whom-grid {
+    grid-template-columns: 1fr;
+  }
+}
