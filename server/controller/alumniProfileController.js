@@ -117,6 +117,25 @@ exports.getAllAlumniProfiles = async (req, res) => {
   }
 };
 
+exports.getFeaturedAlumni = async (req, res) => {
+  try {
+    // Fetch 4 profiles, sorted by creation date or any other criteria
+    // We select specific fields to optimize the query
+    const profiles = await AlumniProfile.find({})
+      .select('fullName profilePictureUrl currentPosition currentCompany education user')
+      .limit(4)
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      profiles,
+    });
+  } catch (error) {
+    console.error('Error fetching featured alumni:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 /**
  * @desc    Get a single alumni profile by its ID
  * @route   GET /api/profile/:id

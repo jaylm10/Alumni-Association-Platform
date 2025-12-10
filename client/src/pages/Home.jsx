@@ -1,31 +1,38 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
-  Menu, 
   GraduationCap, 
   Briefcase, 
   Lightbulb, 
   Star,
-  Facebook, 
-  Twitter, 
-  Linkedin, 
-  Instagram,
-  MapPin,
-  Mail,
-  Phone,
-  CalendarDays
 } from "lucide-react";
 import "./Home.css";
 import Header from '../components/Header';
-import {AuthContext} from '../contexts/AuthContextProvider';
+import { AuthContext } from '../contexts/AuthContextProvider';
 import Footer from '../components/Footer';
 
 const Home = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const {role} = useContext(AuthContext);
-  // console.log(role);
-  const token = localStorage.getItem("token")
-  
+  // State for dynamic alumni data
+  const [featuredAlumni, setFeaturedAlumni] = useState([]);
+  const { role } = useContext(AuthContext);
+  const token = localStorage.getItem("token");
 
+  // --- FETCH REAL ALUMNI DATA ---
+  useEffect(() => {
+    const fetchFeaturedAlumni = async () => {
+      try {
+        // No token needed for this public route
+        const { data } = await axios.get('http://localhost:3000/api/profile/featured');
+        if (data.success) {
+          setFeaturedAlumni(data.profiles);
+        }
+      } catch (error) {
+        console.error("Failed to fetch featured alumni:", error);
+      }
+    };
+
+    fetchFeaturedAlumni();
+  }, []);
 
   // Stats data
   const stats = [
@@ -81,43 +88,6 @@ const Home = () => {
       rating: 5
     }
   ];
-
-  // Featured alumni data
-  const featuredAlumni = [
-    {
-      id: 1,
-      name: "James Wilson",
-      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      graduationYear: "Class of 2015",
-      role: "CEO at TechInnovate",
-      slug: "james-wilson"
-    },
-    {
-      id: 2,
-      name: "Emily Rodriguez",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      graduationYear: "Class of 2017",
-      role: "Research Scientist at BioHealth",
-      slug: "emily-rodriguez"
-    },
-    {
-      id: 3,
-      name: "Michael Chang",
-      image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80", 
-      graduationYear: "Class of 2012",
-      role: "Partner at Global Ventures",
-      slug: "michael-chang"
-    },
-    {
-      id: 4,
-      name: "Sophia Kim",
-      image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      graduationYear: "Class of 2016",
-      role: "Lead Designer at Creative Studio",
-      slug: "sophia-kim"
-    }
-  ];
-
   
   // Feature Icon component
   const FeatureIcon = ({ icon }) => {
@@ -152,7 +122,11 @@ const Home = () => {
                 <h1>Connect with Alumni for Guidance and Opportunities</h1>
                 <p>Build your professional network, find mentors, and explore career opportunities through our alumni community.</p>
                 <div className="hero-buttons">
-                  <a href="/register" className="btn btn-cta">Join the Network</a>
+                  {!token ? (
+                    <a href="/register" className="btn btn-cta">Join the Network</a>
+                  ) : (
+                    <a href="/alumni" className="btn btn-cta">Browse Alumni</a>
+                  )}
                   <a href="#how-it-works" className="btn btn-secondary">Learn More</a>
                 </div>
               </div>
@@ -228,7 +202,7 @@ const Home = () => {
           </div>
           
           <div className="stories-cta">
-            <a href="/success-stories" className="link-with-arrow">
+            <a href="/about" className="link-with-arrow">
               View more success stories
               <svg xmlns="http://www.w3.org/2000/svg" className="arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -238,50 +212,62 @@ const Home = () => {
         </section>
 
         {/* Featured Alumni Section */}
-        <section className="featured-alumni-section">
-          <div className="section-header">
-            <h2>Featured Alumni</h2>
-            <p>Meet some of our distinguished alumni who are making an impact in their fields.</p>
-          </div>
-          
-          <div className="alumni-container">
-            {featuredAlumni.map((alumnus) => (
-              <div key={alumnus.id} className="alumni-card">
-                <div className="alumni-image-container">
-                  <img src={alumnus.image} alt={alumnus.name} />
-                  <div className="overlay">
-                    <a href={`/alumni/${alumnus.slug}`} className="btn btn-view">View Profile</a>
+        {featuredAlumni.length > 0 && (
+          <section className="featured-alumni-section">
+            <div className="section-header">
+              <h2>Featured Alumni</h2>
+              <p>Meet some of our distinguished alumni who are making an impact in their fields.</p>
+            </div>
+            
+            <div className="alumni-container">
+              {featuredAlumni.map((alumnus) => (
+                <div key={alumnus._id} className="alumni-card">
+                  <div className="alumni-image-container">
+                    <img 
+                      src={alumnus.profilePictureUrl || 'https://via.placeholder.com/150?text=User'} 
+                      alt={alumnus.fullName} 
+                      onError={(e) => {e.target.src = 'https://via.placeholder.com/150?text=User'}}
+                    />
+                    <div className="overlay">
+                      {/* Use _id for the link because these come from MongoDB */}
+                      <a href={`/alumni/${alumnus._id}`} className="btn btn-view">View Profile</a>
+                    </div>
+                  </div>
+                  <div className="alumni-info">
+                    <h3>{alumnus.fullName}</h3>
+                    <p className="graduation-year">
+                      {/* Handle potential missing education data */}
+                      {alumnus.education && alumnus.education.length > 0 
+                        ? `Class of ${alumnus.education[0].year}` 
+                        : "Alumni"}
+                    </p>
+                    <p className="role">
+                      {alumnus.currentPosition} {alumnus.currentCompany ? `at ${alumnus.currentCompany}` : ""}
+                    </p>
                   </div>
                 </div>
-                <div className="alumni-info">
-                  <h3>{alumnus.name}</h3>
-                  <p className="graduation-year">{alumnus.graduationYear}</p>
-                  <p className="role">{alumnus.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="alumni-cta">
-            <a href="/alumni" className="btn btn-primary">Browse All Alumni</a>
-          </div>
-        </section>
-
-    
+              ))}
+            </div>
+            
+            <div className="alumni-cta">
+              <a href="/alumni" className="btn btn-primary">Browse All Alumni</a>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
-        {token == undefined &&
-        <section className="cta-section">
-          <div className="cta-container">
-            <h2>Ready to Connect with Your Alumni Network?</h2>
-            <p>Join thousands of students and alumni who are building valuable connections and advancing their careers.</p>
-            <div className="cta-buttons">
-              <a href="/register" className="btn btn-cta">Create Your Account</a>
-              <a href="/login" className="btn btn-outline">Login</a>
+        {!token && (
+          <section className="cta-section">
+            <div className="cta-container">
+              <h2>Ready to Connect with Your Alumni Network?</h2>
+              <p>Join thousands of students and alumni who are building valuable connections and advancing their careers.</p>
+              <div className="cta-buttons">
+                <a href="/register" className="btn btn-cta">Create Your Account</a>
+                <a href="/login" className="btn btn-outline">Login</a>
+              </div>
             </div>
-          </div>
-        </section>
-        }
+          </section>
+        )}
       </main>
 
       {/* Footer */}
